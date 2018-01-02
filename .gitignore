@@ -1,5 +1,7 @@
 data/MUS/
 data/musdb18.zip
+estimates/
+data/wavs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
