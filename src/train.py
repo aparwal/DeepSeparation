@@ -4,8 +4,8 @@
 #SBATCH -p gpu
 #SBATCH -o monaural-zero.out
 #SBATCH -t 1-12:20:00
-#SBATCH --gres=gpu:4
-#SBATCH --mem=106000
+#SBATCH --gres=gpu:6
+#SBATCH --mem=126000
 
 
 # written by Anand Parwal
@@ -13,17 +13,22 @@
 
 # import numpy as np
 # import pickle
+import sys
+import os
+#for setting dir on slurm
+sys.path.append(os.getcwd())
 from keras.callbacks import ModelCheckpoint, TensorBoard,EarlyStopping,Callback,ReduceLROnPlateau
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
-import os
-from utils import read_data
+
+from utils import read_data,read_mix_voc_acc
 import model
 # from extras import to_wav, write_wav, soft_time_freq_mask, spec_to_batch, bss_eval_global
 from TimeFreqMasking import TimeFreqMasking
 # from kapre.time_frequency import Spectrogram
 from configuration import *
 from time import time
+ 
 # from librosa.effects import split
 
 os.environ['TF_CPP_MIN_LOG_LEVEL']='0'
@@ -43,9 +48,10 @@ def deprocess(mag,phase):
 	wavs=to_wav(mag,phase)
 	return wavs
 '''
-def train(f='tempmodel.h5'):
+def train(f='tempmodel.h5',limit=[0,10]):
 
-	mix,voc,acc=read_data()
+	mix,voc,acc=read_mix_voc_acc(limit=limit)
+	
 
 	newmodel=model.create_model()
 	newmodel.summary()
@@ -65,4 +71,4 @@ def train(f='tempmodel.h5'):
 	newmodel.save(f)
 
 if __name__ == '__main__':
-	train()
+	train(limit=[0,100])

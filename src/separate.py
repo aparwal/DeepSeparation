@@ -1,44 +1,60 @@
 # from librosa.output import write_wav
 import numpy as np
 from keras.models import load_model
+from os import environ
+
+import model
 from TimeFreqMasking import TimeFreqMasking
-from utils import make_stft
+from model import penalized_loss
+from utils import make_stft,make_wav
 from configuration import seq_len,n_bins
 
+environ['TF_CPP_MIN_LOG_LEVEL']='1'
 
-def separate(track,alpha=0):
-	f='tempmodel.h5'
-	testcaseL=make_stft( [track.audio[:,0]])
-	testcaseR=make_stft( [track.audio[:,1]])
-	print(track.name)
-	print(testcaseR.shape)
-	musicL=[]
-	vocalL=[]
-	musicR=[]
-	vocalR=[]
+def separate(track,model='tempmodel.h5'):
+	
+	testcaseL,angleL=make_stft( [track.audio[:,0]])
+	testcaseR,angleR=make_stft( [track.audio[:,1]])
+	# print(track.name)
+	# print(testcaseR.shape)
+	stft_estimates={
+	'musicL':[],
+	'vocalL':[],
+	'musicR':[],
+	'vocalR':[]
+	}
+	testmodel=load_model(model,custom_objects={'TimeFreqMasking':TimeFreqMasking})
 
-	for testcase in testcaseL.reshape(-1,seq_len,n_bins):
-		testmodel=load_model(f,custom_objects={'TimeFreqMasking':TimeFreqMasking})
-		music_predL,vocal_predL=testmodel.predict(testcaseL)
-		musicL.append(music_predL)
-		vocalL.append(vocal_predL)
+	stft_estimates['musicL'],stft_estimates['vocalL']=testmodel.predict(testcaseL.reshape(-1,seq_len,n_bins))
+	stft_estimates['musicR'],stft_estimates['vocalR']=testmodel.predict(testcaseR.reshape(-1,seq_len,n_bins)) 
 
-	for testcase in testcaseR.reshape(-1,seq_len,n_bins):
-		testmodel=load_model(f,custom_objects={'TimeFreqMasking':TimeFreqMasking})
-		music_predR,vocal_predR=testmodel.predict(testcaseR)
-		musicR.append(music_predR)
-		vocalR.append(vocal_predR)
+	# for testcase in testcaseL.reshape(-1,1,seq_len,n_bins):
+	# 	# print(testcase.shape)
+		
+	# 	stft_estimates['musicL'].append(music_predL)
+	# 	stft_estimates['vocalL'].append(vocal_predL)
+
+	# for testcase in testcaseR.reshape(-1,1,seq_len,n_bins):
+		
+		
+	# 	stft_estimates['musicR'].append(music_predR)
+	# 	stft_estimates['vocalR'].append(vocal_predR)
+
+	for key in stft_estimates.keys():
+		stft_estimates[key]=np.array(stft_estimates[key]).reshape(-1,88,n_bins)
+
+	vocals=np.stack([make_wav(stft_estimates['vocalL'],angleL),make_wav(stft_estimates ['vocalR'],angleR)],axis=1)
+	music=np.stack([make_wav(stft_estimates['musicL'],angleL),make_wav(stft_estimates ['musicR'],angleR)],axis=1)
 
 
-	vocals=np.hstack([np.array(vocalL),np.array(vocalR)])
-	music=np.hstack([np.array(musicL),np.array(musicR)])
-	print(vocals.shape)
-	print(music.shape)
+	# print(track.audio.shape)
+	# print(np.pad(vocals,((0,(track.audio.shape[0]-vocals.shape[0])),(0,0)),'constant',constant_values=((0,0),(0, 0))).shape)
+	# print(music.shape)
 
 	# palceholder=np.ones((10,1))
 	return {
-		'vocals': vocals,
-		'accompaniment': music
+		'vocals': np.pad(vocals,((0,np.abs(track.audio.shape[0]-vocals.shape[0])),(0,0)),'constant',constant_values=((0,0),(0, 0))),
+		'accompaniment': np.pad(music,((0,np.abs(track.audio.shape[0]-music.shape[0])),(0,0)),'constant',constant_values=((0,0),(0, 0)))
 		# 'bass': track.targets['bass'].audio,
 		# 'drums': track.targets['drums'].audio,
 		# 'other':  track.targets['other'].audio,

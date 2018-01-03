@@ -6,16 +6,16 @@ from separate import separate
 
 mus = musdb.DB(root_dir=data_dir)
 global alpha
-alpha=0
-subsets="train"
+model='tempmodel.h5'
+subsets="dev"
 
-mus.test(separate)
-exit()
+# mus.test(separate)
+# exit()
 
 mus.run(
-	functools.partial(separate,alpha=alpha),
+	functools.partial(separate,model=model),
 	estimates_dir=estimates_dir,
-	subsets="train")
+	subsets=subsets)
 
 
 #for decoding stem and saving in estimates_dir

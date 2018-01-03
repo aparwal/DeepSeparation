@@ -1,7 +1,9 @@
-data/MUS/
-data/musdb18.zip
+# data/MUS/
+# data/musdb18.zip
 estimates/
-data/wavs/
+data/
+src/logs/
+*.out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -42,8 +42,10 @@ def create_model(rnn_nos=1,seq_in = Input(shape=(seq_len,n_bins)),dense_size=2):
 	# merged_output=concatenate([Music_pred,Vocal_pred],axis=1,name='merged_output')
 
 	model=Model(inputs=seq_in, outputs=[Music_pred,Vocal_pred])
-	model.compile(loss=[penalized_loss(Vocal_pred,regular_const[0]),penalized_loss(Music_pred,regular_const[1])],loss_weights=loss_weights,
-																		 optimizer='RMSprop', metrics=['accuracy'])
+	# model.compile(loss=[penalized_loss(Vocal_pred,regular_const[0]),penalized_loss(Music_pred,regular_const[1])],loss_weights=loss_weights,
+	# 																	 optimizer='RMSprop', metrics=['accuracy'])
+	model.compile(loss=['mse','mse'],loss_weights=loss_weights,
+																		 optimizer='nadam', metrics=['accuracy'])
 
 	# modelPerSeq.summary()
 

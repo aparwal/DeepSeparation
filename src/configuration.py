@@ -1,5 +1,5 @@
 
-data_dir="../data/MUS-STEMS-SAMPLE"
+data_dir="../data/MUS"
 estimates_dir="../estimates"
 wavs_dir="../data/wavs"
 sr=44100;
@@ -16,8 +16,8 @@ loss_weights=[1, 1]
 
 # Train
 class TrainConfig:
-    epochs=10
-    batch_size=512
+    epochs=30
+    batch_size=1024
     validation_split=0.2
     # SECONDS = 120 ######## needs to be a multiple of 8 for seq_len=4
     WRITE_SAMPLE=False
