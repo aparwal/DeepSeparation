@@ -5,7 +5,7 @@ Caution: still under development
 
 ## Usage
 
-In 'configuration.py', set 'data_dir' to folder containing test files and 'results_dir' to output folder and run 'test.py'
+In `configuration.py`, set `data_dir` to folder containing test files and `results_dir` to output folder and run `test.py`
 
 
 ## Reference
