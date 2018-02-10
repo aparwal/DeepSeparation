@@ -72,4 +72,3 @@ def train(f='tempmodel.h5',limit=[0,10]):
 
 if __name__ == '__main__':
 	train(limit=[0,100])
-	abhishek messed here
