@@ -15,7 +15,7 @@
 # import pickle
 import sys
 import os
-#for setting dir on slurm
+#for setting dir on slurm 
 sys.path.append(os.getcwd())
 from keras.callbacks import ModelCheckpoint, TensorBoard,EarlyStopping,Callback,ReduceLROnPlateau
 from keras.models import load_model
